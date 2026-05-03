@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Qaşqaldağ Hunter 2.2 - Custom Intro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nosifer&family=Oswald:wght@700&family=Special+Elite&display=swap');
+
+        body { margin: 0; overflow: hidden; background: #000; cursor: none; font-family: 'Courier New', Courier, monospace; touch-action: none; }
+        canvas { display: block; }
+
+        /* GİRİŞ EKRANI */
+        #start-overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: url('https://i.postimg.cc/sXrJLbMn/images.jpg') no-repeat center center; 
+            background-size: cover; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 800; 
+            flex-direction: column; 
+            color: white; 
+        }
+        
+        /* CREATOR TEXT */
+        #creator-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        #game-title {
+            font-family: 'Nosifer', cursive;
+            color: #ff0000;
+            font-size: 5vw;
+            text-align: center;
+            text-shadow: 5px 5px 15px #000;
+            margin-bottom: 40px;
+        }
+
+        #start-btn { 
+            padding: 20px 60px; 
+            font-size: 32px; 
+            background: rgba(231, 76, 60, 0.8); 
+            color: white; 
+            border: 4px solid #fff; 
+            cursor: pointer; 
+            font-family: 'Oswald', sans-serif; 
+            transition: 0.3s; 
+            letter-spacing: 3px;
+        }
+        #start-btn:hover { background: #fff; color: #e74c3c; transform: scale(1.1); }
+        
+        #ui { position: absolute; top: 15px; left: 15px; font-size: 18px; color: #fff; text-shadow: 1px 1px 0 #000; z-index: 100; pointer-events: none; }
+        #gun-name-display { color: #ffff00; display: block; margin-top: 3px; font-size: 16px; }
+        #ammo-display { color: #ff4d4d; font-weight: bold; font-size: 14px; margin-top: 5px; }
+        
+        #special-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 8vw; color: #ffff00; font-weight: bold; text-shadow: 4px 4px 0 #000; display: none; z-index: 500; pointer-events: none; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 90%; text-align: center; }
+        .show-text { display: block !important; transform: translate(-50%, -50%) scale(1) !important; opacity: 1; }
+        
+        /* SETTINGS OVERLAY */
+        #pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 750; color: white; flex-direction: column; }
+        .settings-box { background: #222; padding: 30px; border: 2px solid #2980b9; border-radius: 10px; text-align: center; min-width: 300px; }
+        .setting-row { margin: 15px 0; }
+        .color-dot { width: 30px; height: 30px; display: inline-block; cursor: pointer; border: 2px solid #fff; margin: 0 5px; border-radius: 50%; }
+        
+        .control-btn { padding: 10px 20px; font-size: 14px; border: 2px solid #fff; cursor: pointer; background: #2980b9; color: white; font-weight: bold; pointer-events: auto; }
+        
+        .preview-box { display: inline-block; width: 20px; height: 20px; position: relative; vertical-align: middle; }
+        .preview-classic { border: 1.5px solid white; border-radius: 50%; }
+        .preview-classic::after { content: ''; position: absolute; top: 50%; left: -2px; width: 24px; height: 1.5px; background: white; }
+        .preview-classic::before { content: ''; position: absolute; left: 50%; top: -2px; height: 24px; width: 1.5px; background: white; }
+        .preview-dot { background: white; width: 8px !important; height: 8px !important; border-radius: 50%; margin: 6px; }
+        .preview-square { border: 1.5px solid white; width: 18px !important; height: 18px !important; }
+
+        #shop-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(17, 17, 17, 0.95); border: 5px solid #f1c40f; padding: 20px; color: white; display: none; z-index: 900; text-align: center; width: 350px; max-height: 80vh; overflow-y: auto; }
+        #close-shop { position: absolute; top: 10px; right: 10px; font-size: 24px; color: #ff4d4d; cursor: pointer; font-weight: bold; border: 2px solid #ff4d4d; width: 35px; height: 35px; line-height: 30px; border-radius: 5px; background: rgba(0,0,0,0.5); }
+        
+        .item { margin: 10px 0; padding: 12px; border: 1px solid #444; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .shop-section { margin-top: 20px; border-top: 2px solid #f1c40f; padding-top: 10px; }
+        
+        #crosshair { position: absolute; width: 30px; height: 30px; pointer-events: none; transform: translate(-50%, -50%); z-index: 200; }
+        .ch-classic { border: 2px solid red; border-radius: 50%; }
+        .ch-classic::after { content: ''; position: absolute; top: 50%; left: -5px; width: 40px; height: 2px; background: red; }
+        .ch-classic::before { content: ''; position: absolute; left: 50%; top: -5px; height: 40px; width: 2px; background: red; }
+        
+        .ch-dot { background: red; width: 10px !important; height: 10px !important; border-radius: 50%; box-shadow: 0 0 10px red; }
+        .ch-dot::after, .ch-dot::before { display: none; }
+
+        .ch-square { border: 2px solid red; width: 20px !important; height: 20px !important; }
+        .ch-square::after { content: ''; position: absolute; top: 50%; left: 45%; width: 2px; height: 2px; background: red; }
+        .ch-square::before { display: none; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <audio id="bgMusic" loop>
+        <source src="https://files.catbox.moe/5s5fo3.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-overlay">
+        <div id="creator-tag">creator:şahmurad</div>
+        <div id="game-title">QAŞQALDAĞ HUNTER 2.2</div>
+        <button id="start-btn" onclick="startGame()">PLAY</button>
+    </div>
+
+    <div id="pause-overlay">
+        <div class="settings-box">
+            <h1 style="font-family: 'Oswald'; margin-top: 0;">SETTINGS</h1>
+            <div class="setting-row">
+                <p>CROSSHAIR COLOR</p>
+                <div class="color-dot" style="background: red;" onclick="changeChColor('red')"></div>
+                <div class="color-dot" style="background: lime;" onclick="changeChColor('lime')"></div>
+                <div class="color-dot" style="background: cyan;" onclick="changeChColor('cyan')"></div>
+                <div class="color-dot" style="background: yellow;" onclick="changeChColor('yellow')"></div>
+            </div>
+            <div class="setting-row">
+                <p>CROSSHAIR STYLE</p>
+                <button class="control-btn" style="padding: 15px; margin: 2px;" onclick="changeChStyle('ch-classic')">
+                    <div class="preview-box preview-classic"></div>
+                </button>
+                <button class="control-btn" style="padding: 15px; margin: 2px;" onclick="changeChStyle('ch-dot')">
+                    <div class="preview-box preview-dot"></div>
+                </button>
+                <button class="control-btn" style="padding: 15px; margin: 2px;" onclick="changeChStyle('ch-square')">
+                    <div class="preview-box preview-square"></div>
+                </button>
+            </div>
+            <hr style="border: 1px solid #444; margin: 20px 0;">
+            <button class="control-btn" style="font-size: 18px; width: 100%;" onclick="togglePause()">RESUME</button>
+        </div>
+    </div>
+
+    <div id="special-text">QAŞQALDAĞ</div>
+
+    <div id="ui">
+        SCORE: <span id="score">0</span><br>
+        <span id="gun-name-display">M1911 Pistol</span>
+        <div id="ammo-display">AMMO: <span id="ammo-count">7/7</span></div>
+    </div>
+    
+    <div style="position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; gap: 150px; z-index: 600;">
+        <button class="control-btn" onclick="togglePause()">SETTINGS</button>
+        <button class="control-btn" onclick="handleShopToggle()">MARKET</button>
+    </div>
+
+    <div id="shop-menu">
+        <div id="close-shop" onclick="handleShopToggle()">X</div>
+        <h2 style="color:#f1c40f; font-family: 'Oswald';">GUN ARSENAL</h2>
+        <div id="guns-container"></div>
+        <div class="shop-section">
+            <h2 style="color:#2ecc71; font-family: 'Oswald';">GLOVES</h2>
+            <div id="gloves-container"></div>
+        </div>
+    </div>
+
+    <div id="crosshair" class="ch-classic"></div>
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+    // Oyunun daxili JS kodları olduğu kimi saxlanılıb...
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+    const gunNameDisplay = document.getElementById('gun-name-display');
+    const ammoCountElement = document.getElementById('ammo-count');
+    const bgMusic = document.getElementById('bgMusic');
+    const crosshair = document.getElementById('crosshair');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let score = 0, hitCounter = 0, birds = [], clouds = [], flowers = [], mountains = [], trees = [], rocks = [], particles = [];
+    let weatherParticles = []; 
+    let targetWeather = "sunny";
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let gunRecoil = 0, muzzleFlash = 0, shake = 0, isPaused = true, isShopOpen = false, audioCtx;
+    let isReloading = false, gameTime = 0, stars = [];
+    let isFiring = false, fireInterval = null;
+
+    function changeChColor(color) {
+        crosshair.style.borderColor = color;
+        const sheet = document.createElement('style');
+        sheet.innerHTML = `#crosshair::after, #crosshair::before, .ch-dot, .ch-square::after { background: ${color} !important; } #crosshair { border-color: ${color} !important; box-shadow: 0 0 5px ${color}; }`;
+        document.head.appendChild(sheet);
+    }
+
+    function changeChStyle(styleName) { crosshair.className = styleName; }
+
+    const guns = [
+        { id: 'm1911', name: "M1911 Pistol", price: 0, color: "#c0c0c0", sideColor: "#8a8a8a", shake: 6, freq: 180, sound: 'square', owned: true, maxAmmo: 7, currentAmmo: 7, reloadTime: 1000, auto: false },
+        { id: 'glock', name: "Glock 17", price: 10, color: "#222", sideColor: "#000", shake: 8, freq: 200, sound: 'square', owned: false, maxAmmo: 17, currentAmmo: 17, reloadTime: 1200, auto: false },
+        { id: 'deagle', name: "Desert Eagle", price: 50, color: "#c5b358", sideColor: "#a68d00", shake: 25, freq: 100, sound: 'triangle', owned: false, maxAmmo: 7, currentAmmo: 7, reloadTime: 1800, auto: false },
+        { id: 'gold', name: "Gold Revolver", price: 150, color: "#f1c40f", sideColor: "#d4ac0d", shake: 20, freq: 300, sound: 'square', owned: false, maxAmmo: 12, currentAmmo: 12, reloadTime: 2000, auto: false },
+        { id: 'ak47', name: "AK-47 Assault", price: 300, color: "#4b2c20", sideColor: "#333", shake: 15, freq: 250, sound: 'sawtooth', owned: false, maxAmmo: 30, currentAmmo: 30, reloadTime: 2500, auto: true, fireRate: 120 },
+        { id: 'minigun', name: "The Shredder", price: 600, color: "#111", sideColor: "#555", shake: 30, freq: 400, sound: 'square', owned: false, maxAmmo: 100, currentAmmo: 100, reloadTime: 5000, auto: true, fireRate: 70 }
+    ];
+
+    const gloves = [
+        { id: 'basic', name: "Work Gloves", price: 20, bonus: 0.10, owned: false },
+        { id: 'leather', name: "Leather Gloves", price: 60, bonus: 0.20, owned: false },
+        { id: 'tactical', name: "Tactical Gloves", price: 120, bonus: 0.35, owned: false },
+        { id: 'hunter', name: "Hunter Gloves", price: 250, bonus: 0.50, owned: false },
+        { id: 'elite', name: "Elite Gloves", price: 450, bonus: 0.70, owned: false },
+        { id: 'cyber', name: "Cyber Gloves", price: 800, bonus: 0.90, owned: false }
+    ];
+
+    let currentGun = guns[0];
+    let currentGlove = null;
+
+    function unlockAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (bgMusic.paused && !isPaused) bgMusic.play(); }
+    function updateAmmoDisplay() { ammoCountElement.innerText = `${currentGun.currentAmmo}/${currentGun.maxAmmo}`; }
+    function changeWeather() { const types = ["sunny", "rainy", "snowy"]; targetWeather = types[Math.floor(Math.random() * types.length)]; }
+    setInterval(changeWeather, 20000);
+
+    function initEnv() {
+        mountains = []; trees = []; rocks = []; flowers = []; clouds = []; stars = [];
+        for(let i=0; i<60; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*(canvas.height/1.5), s: Math.random()*1.5});
+        for(let i=0; i<5; i++) mountains.push({ x: i * 450 - 100, w: 650, h: 300 + Math.random() * 200 });
+        for(let i=0; i<12; i++) trees.push({ x: Math.random() * canvas.width, y: canvas.height - 120, s: 0.8 + Math.random() });
+        for(let i=0; i<6; i++) rocks.push({ x: Math.random() * canvas.width, y: canvas.height - 80, w: 40 + Math.random()*40 });
+        for(let i=0; i<40; i++) flowers.push({ x: Math.random() * canvas.width, y: canvas.height - 20 - Math.random() * 80, fC: ['#ff4d4d', '#ffff66', '#ffffff'][Math.floor(Math.random()*3)] });
+        for(let i=0; i<5; i++) clouds.push({ x: Math.random() * canvas.width, y: 50 + Math.random() * 150, s: 1 + Math.random() });
+    }
+
+    class WeatherEffect {
+        constructor(type) { this.type = type; this.reset(); }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * -canvas.height;
+            this.speed = this.type === "rainy" ? 14 + Math.random() * 4 : 2 + Math.random() * 2;
+            this.size = this.type === "rainy" ? 1.5 : 2 + Math.random() * 2;
+            this.life = 1.0;
+        }
+        update() {
+            this.y += this.speed;
+            if(this.type === "rainy") this.x += 0.5;
+            if(this.y > canvas.height) this.reset();
+            if (this.type !== targetWeather && targetWeather !== "sunny") this.life -= 0.01;
+        }
+        draw() {
+            if(this.life <= 0) return;
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.type === "rainy" ? "rgba(174, 194, 224, 0.6)" : "#fff";
+            if(this.type === "rainy") ctx.fillRect(this.x, this.y, 1, 15);
+            else { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    class Bird {
+        constructor() { this.x = -100; this.y = 50 + Math.random() * (canvas.height - 250); this.speed = 3 + Math.random() * 4; this.wing = 0; this.size = 1.2; }
+        draw() {
+            ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.size, this.size); this.wing += 0.25;
+            let wY = Math.sin(this.wing) * 12; ctx.fillStyle = "white"; ctx.fillRect(0, 0, 30, 15);
+            ctx.fillStyle = "black"; ctx.fillRect(-5, wY, 15, 6); ctx.fillRect(-5, -wY-6, 15, 6);
+            ctx.fillStyle = "white"; ctx.fillRect(25, -8, 12, 12); ctx.fillStyle = "black"; ctx.fillRect(32, -4, 4, 4);
+            ctx.fillStyle = "#ff9800"; ctx.fillRect(37, -2, 8, 4); ctx.restore();
+        }
+        update() { 
+            if(!isPaused) {
+                this.x += this.speed; 
+                if (this.x > canvas.width + 100) { score = Math.max(0, score - 1); scoreElement.innerText = score; return true; }
+            }
+            return false;
+        }
+    }
+
+    class Particle {
+        constructor(x, y) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 8; this.vy = (Math.random() - 0.5) * 8; this.size = Math.random() * 4 + 2; this.life = 1.0; }
+        update() { this.x += this.vx; this.y += this.vy; this.vy += 0.25; this.life -= 0.04; }
+        draw() { ctx.fillStyle = `rgba(255, 0, 0, ${this.life})`; ctx.fillRect(this.x, this.y, this.size, this.size); }
+    }
+
+    function animate() {
+        ctx.save();
+        if (shake > 0) { ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake *= 0.85; if(shake < 0.1) shake = 0; }
+        if(!isPaused) gameTime += 0.003; 
+        let cycle = (Math.sin(gameTime) + 1) / 2;
+        let r = 10 + 69 * cycle; let g = 10 + 150 * cycle; let b = 42 + 213 * cycle;
+        if(targetWeather !== "sunny") { r *= 0.7; g *= 0.7; b *= 0.8; }
+        ctx.fillStyle = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (cycle < 0.6) { ctx.fillStyle = `rgba(255, 255, 255, ${1 - cycle * 1.5})`; stars.forEach(s => ctx.fillRect(s.x, s.y, s.s, s.s)); }
+        let sunY = (canvas.height/1.5) + Math.sin(gameTime + Math.PI) * (canvas.height/1.5);
+        let sunX = (gameTime * 40) % (canvas.width + 400) - 200;
+        if(targetWeather === "sunny") { ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(sunX, sunY, 45, 0, Math.PI*2); ctx.fill(); }
+        clouds.forEach(c => {
+            if(!isPaused) c.x += 0.5; if(c.x > canvas.width) c.x = -100;
+            ctx.fillStyle = targetWeather === "sunny" ? `rgba(255, 255, 255, ${0.3 + 0.5 * cycle})` : "rgba(100, 100, 120, 0.6)";
+            ctx.fillRect(c.x, c.y, 40*c.s, 15); ctx.fillRect(c.x-10, c.y+10, 60*c.s, 15);
+        });
+        mountains.forEach(m => { ctx.fillStyle = `rgb(${112 * (0.3 + 0.7 * cycle)}, ${128 * (0.3 + 0.7 * cycle)}, ${144 * (0.3 + 0.7 * cycle)})`; ctx.beginPath(); ctx.moveTo(m.x, canvas.height); ctx.lineTo(m.x+m.w/2, canvas.height-m.h); ctx.lineTo(m.x+m.w, canvas.height); ctx.fill(); });
+        let groundColor = targetWeather === "snowy" ? "#fff" : `rgb(${46 * (0.4 + 0.6 * cycle)}, ${204 * (0.4 + 0.6 * cycle)}, ${113 * (0.4 + 0.6 * cycle)})`;
+        ctx.fillStyle = groundColor; ctx.fillRect(0, canvas.height-120, canvas.width, 120);
+        rocks.forEach(r => { ctx.fillStyle = "#888"; ctx.fillRect(r.x, r.y, r.w, 20); ctx.fillStyle = "#666"; ctx.fillRect(r.x+5, r.y-10, r.w-10, 10); });
+        trees.forEach(t => { ctx.fillStyle = "#5d4037"; ctx.fillRect(t.x, t.y-20, 15*t.s, 25); ctx.fillStyle = targetWeather === "snowy" ? "#eee" : "#2d5a27"; ctx.beginPath(); ctx.moveTo(t.x-30*t.s, t.y-20); ctx.lineTo(t.x+7*t.s, t.y-80*t.s); ctx.lineTo(t.x+45*t.s, t.y-20); ctx.fill(); });
+        flowers.forEach(f => { if(targetWeather !== "snowy") { ctx.fillStyle = f.fC; ctx.fillRect(f.x, f.y, 6, 6); ctx.fillStyle = "#27ae60"; ctx.fillRect(f.x+2, f.y+6, 2, 4); } });
+
+        if(!isPaused) {
+            if(targetWeather !== "sunny" && weatherParticles.length < 100) weatherParticles.push(new WeatherEffect(targetWeather));
+            for(let i = weatherParticles.length - 1; i >= 0; i--) { weatherParticles[i].update(); weatherParticles[i].draw(); if(weatherParticles[i].life <= 0) weatherParticles.splice(i, 1); }
+        }
+        for(let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(); if(particles[i].life <= 0) particles.splice(i, 1); }
+        for(let i = birds.length - 1; i >= 0; i--) { const isEscaped = birds[i].update(); birds[i].draw(); if(isEscaped) birds.splice(i, 1); }
+        
+        ctx.save();
+        let gunX = canvas.width/2, gunY = canvas.height;
+        ctx.translate(gunX, gunY); ctx.rotate(Math.atan2(mouse.y - gunY, mouse.x - gunX) + Math.PI/2);
+        ctx.fillStyle = currentGlove ? (currentGlove.id === 'cyber' ? '#00ffff' : '#222') : "#e0ac69"; 
+        ctx.beginPath(); ctx.ellipse(0, 10 + gunRecoil, 35, 45, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillRect(-22, -15 + gunRecoil, 12, 25); 
+        ctx.fillStyle = currentGlove ? "#444" : "#d29e5e"; ctx.fillRect(10, -10 + gunRecoil, 15, 40);
+        ctx.fillStyle = (currentGun.id === 'm1911' || currentGun.id === 'gold' || currentGun.id === 'ak47') ? "#4e342e" : "#111";
+        ctx.fillRect(-15, -40 + gunRecoil, 30, 75);
+        ctx.fillStyle = currentGun.sideColor; ctx.fillRect(10, -115 + gunRecoil, 2, 110); 
+        ctx.fillStyle = currentGun.color; ctx.fillRect(-12, -115 + gunRecoil, 24, 110); 
+        ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(0, -115 + gunRecoil, 6, 0, Math.PI*2); ctx.fill();
+        if(muzzleFlash > 0) { ctx.fillStyle = "rgba(255, 255, 0, 0.8)"; ctx.beginPath(); ctx.arc(0, -120 + gunRecoil, 30, 0, Math.PI*2); ctx.fill(); muzzleFlash--; }
+        ctx.restore();
+        if(!isReloading && gunRecoil < 0) gunRecoil += 5;
+        ctx.restore();
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('mousemove', e => { 
+        mouse.x = e.clientX; mouse.y = e.clientY; 
+        crosshair.style.left = e.clientX + 'px'; crosshair.style.top = e.clientY + 'px'; 
+    });
+
+    function shoot() {
+        if(isPaused || isShopOpen || isReloading || currentGun.currentAmmo <= 0) { if(currentGun.currentAmmo <= 0 && !isReloading) startReload(); return; }
+        if (audioCtx) {
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = currentGun.sound; osc.frequency.setValueAtTime(currentGun.freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+        currentGun.currentAmmo--; updateAmmoDisplay(); gunRecoil = -35; muzzleFlash = 4; shake = currentGun.shake;
+        for(let i = birds.length - 1; i >= 0; i--) {
+            let b = birds[i];
+            if(Math.hypot(mouse.x - b.x, mouse.y - b.y) < 70) { 
+                for(let j=0; j<10; j++) particles.push(new Particle(b.x+15, b.y+7)); 
+                birds.splice(i, 1); score++; hitCounter++; scoreElement.innerText = score; 
+                if(hitCounter % 10 === 0) { document.getElementById('special-text').classList.add('show-text'); setTimeout(()=>document.getElementById('special-text').classList.remove('show-text'), 1200); }
+                break;
+            } 
+        }
+    }
+    
+    window.addEventListener('mousedown', (e) => { if(e.target.tagName === 'BUTTON') return; unlockAudio(); if(currentGun.auto) { if(!isFiring) { isFiring = true; shoot(); fireInterval = setInterval(shoot, currentGun.fireRate); } } else { shoot(); } });
+    window.addEventListener('mouseup', () => { isFiring = false; clearInterval(fireInterval); });
+
+    function startReload() {
+        isFiring = false; clearInterval(fireInterval); isReloading = true;
+        let bonusFactor = currentGlove ? (1 - currentGlove.bonus) : 1;
+        let actualReloadTime = currentGun.reloadTime * bonusFactor;
+        let rInterval = setInterval(() => { if (gunRecoil < 140) gunRecoil += 15; }, 16); 
+        setTimeout(() => { clearInterval(rInterval); currentGun.currentAmmo = currentGun.maxAmmo; updateAmmoDisplay(); isReloading = false; gunRecoil = 0; }, actualReloadTime); 
+    }
+
+    function togglePause() { isPaused = !isPaused; document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none'; if(isPaused) { bgMusic.pause(); isFiring = false; clearInterval(fireInterval); } else { bgMusic.play(); } }
+    function handleShopToggle() { isShopOpen = !isShopOpen; isPaused = isShopOpen; document.getElementById('shop-menu').style.display = isShopOpen ? 'block' : 'none'; updateShopUI(); if(isShopOpen) { bgMusic.pause(); isFiring = false; clearInterval(fireInterval); } else { bgMusic.play(); } }
+    
+    function updateShopUI() { 
+        const gunContainer = document.getElementById('guns-container'); gunContainer.innerHTML = ''; 
+        guns.forEach(g => { 
+            const div = document.createElement('div'); div.className = 'item'; div.style.borderColor = g.owned ? '#2ecc71' : '#444'; 
+            div.innerHTML = `<span>${g.name}</span> <span style="color:#f1c40f">${g.owned ? (currentGun.id === g.id ? 'SELECTED' : 'SELECT') : g.price + ' P'}</span>`; 
+            div.onclick = () => { if(g.owned) { currentGun = g; gunNameDisplay.innerText = g.name; updateAmmoDisplay(); handleShopToggle(); } else if(score >= g.price) { score -= g.price; g.owned = true; scoreElement.innerText = score; updateShopUI(); } }; 
+            gunContainer.appendChild(div); 
+        }); 
+        const gloveContainer = document.getElementById('gloves-container'); gloveContainer.innerHTML = '';
+        gloves.forEach(gl => {
+            const div = document.createElement('div'); div.className = 'item'; div.style.borderColor = gl.owned ? '#2ecc71' : '#444';
+            let statusText = gl.owned ? (currentGlove && currentGlove.id === gl.id ? 'EQUIPPED' : 'EQUIP') : gl.price + ' P';
+            div.innerHTML = `<span>${gl.name} (+${Math.round(gl.bonus*100)}% SPD)</span> <span style="color:#2ecc71">${statusText}</span>`;
+            div.onclick = () => { if(gl.owned) { currentGlove = gl; updateAmmoDisplay(); updateShopUI(); } else if(score >= gl.price) { score -= gl.price; gl.owned = true; scoreElement.innerText = score; updateShopUI(); } }; 
+            gloveContainer.appendChild(div);
+        });
+    }
+
+    function startGame() { document.getElementById('start-overlay').style.display = 'none'; isPaused = false; unlockAudio(); bgMusic.play().catch(e => console.log("Audio play deferred.")); initEnv(); animate(); }
+    setInterval(() => { if(!isPaused && birds.length < 10) birds.push(new Bird()); }, 1200);
+</script>
+</body>
+</html>
