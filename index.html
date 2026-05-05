@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -27,7 +27,6 @@
             color: white; 
         }
         
-        /* CREATOR TEXT */
         #creator-tag {
             position: absolute;
             top: 10px;
@@ -65,12 +64,67 @@
         #gun-name-display { color: #ffff00; display: block; margin-top: 3px; font-size: 16px; }
         #ammo-display { color: #ff4d4d; font-weight: bold; font-size: 14px; margin-top: 5px; }
         
+        /* COMBO UI - SMALLER AND HIGHER */
+        #combo-ui { 
+            position: absolute; 
+            top: 5px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            font-family: 'Oswald', sans-serif; 
+            color: #00ffff; 
+            font-size: 24px; 
+            text-shadow: 2px 2px 4px #000; 
+            display: none; 
+            z-index: 100; 
+            pointer-events: none; 
+            letter-spacing: 1px;
+        }
+
         #special-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 8vw; color: #ffff00; font-weight: bold; text-shadow: 4px 4px 0 #000; display: none; z-index: 500; pointer-events: none; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 90%; text-align: center; }
         .show-text { display: block !important; transform: translate(-50%, -50%) scale(1) !important; opacity: 1; }
+
+        #reload-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; 
+            z-index: 650;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        #reload-text { 
+            font-family: 'Oswald', sans-serif; 
+            font-size: 24px; 
+            color: #ff4d4d; 
+            text-shadow: 2px 2px 5px #000; 
+            letter-spacing: 3px;
+            margin-bottom: 10px; 
+            animation: blink 0.4s infinite alternate;
+        }
+
+        #reload-bar-bg {
+            width: 200px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #fff;
+            border-radius: 4px;
+            overflow: hidden; 
+            margin: 0 auto;
+        }
+
+        #reload-bar-fill {
+            width: 0%; 
+            height: 100%;
+            background: lime; 
+            transition: width 0.05s linear; 
+        }
+
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
         
-        /* SETTINGS OVERLAY */
         #pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 750; color: white; flex-direction: column; }
-        .settings-box { background: #222; padding: 30px; border: 2px solid #2980b9; border-radius: 10px; text-align: center; min-width: 300px; }
+        .settings-box { background: #222; padding: 30px; border: 2px solid #2980b9; border-radius: 10px; text-align: center; min-width: 300px; max-height: 90vh; overflow-y: auto; }
         .setting-row { margin: 15px 0; }
         .color-dot { width: 30px; height: 30px; display: inline-block; cursor: pointer; border: 2px solid #fff; margin: 0 5px; border-radius: 50%; }
         
@@ -100,6 +154,9 @@
         .ch-square { border: 2px solid red; width: 20px !important; height: 20px !important; }
         .ch-square::after { content: ''; position: absolute; top: 50%; left: 45%; width: 2px; height: 2px; background: red; }
         .ch-square::before { display: none; }
+        
+        .lang-btn { margin: 5px; background: #444; border: 1px solid #888; color: white; cursor: pointer; padding: 10px 20px; font-weight: bold; }
+        .lang-btn.active { background: #2980b9; border-color: #fff; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -114,18 +171,33 @@
         <button id="start-btn" onclick="startGame()">PLAY</button>
     </div>
 
+    <div id="reload-container">
+        <div id="reload-text">DOLDURULUR...</div>
+        <div id="reload-bar-bg">
+            <div id="reload-bar-fill"></div>
+        </div>
+    </div>
+
     <div id="pause-overlay">
         <div class="settings-box">
-            <h1 style="font-family: 'Oswald'; margin-top: 0;">SETTINGS</h1>
+            <h1 id="settings-title" style="font-family: 'Oswald'; margin-top: 0;">AYARLAR</h1>
+            
             <div class="setting-row">
-                <p>CROSSHAIR COLOR</p>
+                <p id="lang-title" style="font-weight: bold; color: #2ecc71; margin-bottom: 5px;">DİL</p>
+                <button class="lang-btn active" onclick="setLanguage('tr')">TR</button>
+                <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+            </div>
+            <hr style="border: 1px solid #444; margin: 10px 0;">
+
+            <div class="setting-row">
+                <p id="ch-color-label">NİŞANGAH RENGİ</p>
                 <div class="color-dot" style="background: red;" onclick="changeChColor('red')"></div>
                 <div class="color-dot" style="background: lime;" onclick="changeChColor('lime')"></div>
                 <div class="color-dot" style="background: cyan;" onclick="changeChColor('cyan')"></div>
                 <div class="color-dot" style="background: yellow;" onclick="changeChColor('yellow')"></div>
             </div>
             <div class="setting-row">
-                <p>CROSSHAIR STYLE</p>
+                <p id="ch-style-label">NİŞANGAH ŞEKLİ</p>
                 <button class="control-btn" style="padding: 15px; margin: 2px;" onclick="changeChStyle('ch-classic')">
                     <div class="preview-box preview-classic"></div>
                 </button>
@@ -137,29 +209,31 @@
                 </button>
             </div>
             <hr style="border: 1px solid #444; margin: 20px 0;">
-            <button class="control-btn" style="font-size: 18px; width: 100%;" onclick="togglePause()">RESUME</button>
+            <button id="resume-btn" class="control-btn" style="font-size: 18px; width: 100%;" onclick="togglePause()">DEVAM ET</button>
         </div>
     </div>
 
     <div id="special-text">QAŞQALDAĞ</div>
 
     <div id="ui">
-        SCORE: <span id="score">0</span><br>
+        <span id="score-label">SKOR</span>: <span id="score">0</span><br>
         <span id="gun-name-display">M1911 Pistol</span>
-        <div id="ammo-display">AMMO: <span id="ammo-count">7/7</span></div>
+        <div id="ammo-display"><span id="ammo-label">MERMİ</span>: <span id="ammo-count">7/7</span></div>
     </div>
+
+    <div id="combo-ui">COMBO X<span id="combo-count">0</span></div>
     
     <div style="position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; gap: 150px; z-index: 600;">
-        <button class="control-btn" onclick="togglePause()">SETTINGS</button>
-        <button class="control-btn" onclick="handleShopToggle()">MARKET</button>
+        <button id="set-btn-ui" class="control-btn" onclick="togglePause()">AYARLAR</button>
+        <button id="shop-btn-ui" class="control-btn" onclick="handleShopToggle()">MARKET</button>
     </div>
 
     <div id="shop-menu">
         <div id="close-shop" onclick="handleShopToggle()">X</div>
-        <h2 style="color:#f1c40f; font-family: 'Oswald';">GUN ARSENAL</h2>
+        <h2 id="shop-title" style="color:#f1c40f; font-family: 'Oswald';">SİLAH ARSENALİ</h2>
         <div id="guns-container"></div>
         <div class="shop-section">
-            <h2 style="color:#2ecc71; font-family: 'Oswald';">GLOVES</h2>
+            <h2 id="gloves-title" style="color:#2ecc71; font-family: 'Oswald';">ELDİVENLER</h2>
             <div id="gloves-container"></div>
         </div>
     </div>
@@ -168,7 +242,6 @@
     <canvas id="gameCanvas"></canvas>
 
 <script>
-    // Oyunun daxili JS kodları olduğu kimi saxlanılıb...
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const scoreElement = document.getElementById('score');
@@ -176,6 +249,11 @@
     const ammoCountElement = document.getElementById('ammo-count');
     const bgMusic = document.getElementById('bgMusic');
     const crosshair = document.getElementById('crosshair');
+    const reloadContainer = document.getElementById('reload-container');
+    const reloadText = document.getElementById('reload-text');
+    const reloadBarFill = document.getElementById('reload-bar-fill');
+    const comboUI = document.getElementById('combo-ui');
+    const comboCountElement = document.getElementById('combo-count');
     
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -187,6 +265,42 @@
     let gunRecoil = 0, muzzleFlash = 0, shake = 0, isPaused = true, isShopOpen = false, audioCtx;
     let isReloading = false, gameTime = 0, stars = [];
     let isFiring = false, fireInterval = null;
+    let shootingStars = [];
+
+    // COMBO
+    let comboCount = 0;
+    let lastHitTime = 0;
+    const comboLimit = 3000;
+    let pauseStartTime = 0;
+
+    const translations = {
+        tr: { settings: "AYARLAR", resume: "DEVAM ET", chColor: "NİŞANGAH RENGİ", chStyle: "NİŞANGAH ŞEKLİ", score: "SKOR", market: "MARKET", arsenal: "SİLAH ARSENALİ", gloves: "ELDİVENLER", ammo: "MERMİ", play: "OYNA", lang: "DİL", reloading: "DOLDURULUR..." },
+        en: { settings: "SETTINGS", resume: "RESUME", chColor: "CROSSHAIR COLOR", chStyle: "CROSSHAIR STYLE", score: "SCORE", market: "MARKET", arsenal: "GUN ARSENAL", gloves: "GLOVES", ammo: "AMMO", play: "PLAY", lang: "LANGUAGE", reloading: "RELOADING..." }
+    };
+
+    let currentLang = 'tr';
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('settings-title').innerText = translations[lang].settings;
+        document.getElementById('resume-btn').innerText = translations[lang].resume;
+        document.getElementById('ch-color-label').innerText = translations[lang].chColor;
+        document.getElementById('ch-style-label').innerText = translations[lang].chStyle;
+        document.getElementById('score-label').innerText = translations[lang].score;
+        document.getElementById('set-btn-ui').innerText = translations[lang].settings;
+        document.getElementById('shop-btn-ui').innerText = translations[lang].market;
+        document.getElementById('shop-title').innerText = translations[lang].arsenal;
+        document.getElementById('gloves-title').innerText = translations[lang].gloves;
+        document.getElementById('start-btn').innerText = translations[lang].play;
+        document.getElementById('ammo-label').innerText = translations[lang].ammo;
+        document.getElementById('lang-title').innerText = translations[lang].lang;
+        reloadText.innerText = translations[lang].reloading;
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText.toLowerCase() === lang) btn.classList.add('active');
+        });
+    }
 
     function changeChColor(color) {
         crosshair.style.borderColor = color;
@@ -199,20 +313,20 @@
 
     const guns = [
         { id: 'm1911', name: "M1911 Pistol", price: 0, color: "#c0c0c0", sideColor: "#8a8a8a", shake: 6, freq: 180, sound: 'square', owned: true, maxAmmo: 7, currentAmmo: 7, reloadTime: 1000, auto: false },
-        { id: 'glock', name: "Glock 17", price: 10, color: "#222", sideColor: "#000", shake: 8, freq: 200, sound: 'square', owned: false, maxAmmo: 17, currentAmmo: 17, reloadTime: 1200, auto: false },
-        { id: 'deagle', name: "Desert Eagle", price: 50, color: "#c5b358", sideColor: "#a68d00", shake: 25, freq: 100, sound: 'triangle', owned: false, maxAmmo: 7, currentAmmo: 7, reloadTime: 1800, auto: false },
-        { id: 'gold', name: "Gold Revolver", price: 150, color: "#f1c40f", sideColor: "#d4ac0d", shake: 20, freq: 300, sound: 'square', owned: false, maxAmmo: 12, currentAmmo: 12, reloadTime: 2000, auto: false },
-        { id: 'ak47', name: "AK-47 Assault", price: 300, color: "#4b2c20", sideColor: "#333", shake: 15, freq: 250, sound: 'sawtooth', owned: false, maxAmmo: 30, currentAmmo: 30, reloadTime: 2500, auto: true, fireRate: 120 },
-        { id: 'minigun', name: "The Shredder", price: 600, color: "#111", sideColor: "#555", shake: 30, freq: 400, sound: 'square', owned: false, maxAmmo: 100, currentAmmo: 100, reloadTime: 5000, auto: true, fireRate: 70 }
+        { id: 'deagle', name: "Desert Eagle", price: 10, color: "#c5b358", sideColor: "#a68d00", shake: 25, freq: 100, sound: 'triangle', owned: false, maxAmmo: 7, currentAmmo: 7, reloadTime: 1800, auto: false },
+        { id: 'gold', name: "Gold Revolver", price: 50, color: "#f1c40f", sideColor: "#d4ac0d", shake: 20, freq: 300, sound: 'square', owned: false, maxAmmo: 12, currentAmmo: 12, reloadTime: 2000, auto: false },
+        { id: 'glock', name: "Glock 17", price: 100, color: "#222", sideColor: "#000", shake: 8, freq: 200, sound: 'square', owned: false, maxAmmo: 17, currentAmmo: 17, reloadTime: 1200, auto: false },
+        { id: 'ak47', name: "AK-47 Assault", price: 200, color: "#4b2c20", sideColor: "#333", shake: 15, freq: 250, sound: 'sawtooth', owned: false, maxAmmo: 30, currentAmmo: 30, reloadTime: 2500, auto: true, fireRate: 120 },
+        { id: 'minigun', name: "The Shredder", price: 400, color: "#111", sideColor: "#555", shake: 30, freq: 400, sound: 'square', owned: false, maxAmmo: 100, currentAmmo: 100, reloadTime: 5000, auto: true, fireRate: 70 }
     ];
 
     const gloves = [
-        { id: 'basic', name: "Work Gloves", price: 20, bonus: 0.10, owned: false },
-        { id: 'leather', name: "Leather Gloves", price: 60, bonus: 0.20, owned: false },
-        { id: 'tactical', name: "Tactical Gloves", price: 120, bonus: 0.35, owned: false },
-        { id: 'hunter', name: "Hunter Gloves", price: 250, bonus: 0.50, owned: false },
-        { id: 'elite', name: "Elite Gloves", price: 450, bonus: 0.70, owned: false },
-        { id: 'cyber', name: "Cyber Gloves", price: 800, bonus: 0.90, owned: false }
+        { id: 'basic', name: "Work Gloves", price: 25, bonus: 0.10, owned: false },
+        { id: 'leather', name: "Leather Gloves", price: 50, bonus: 0.20, owned: false },
+        { id: 'tactical', name: "Tactical Gloves", price: 100, bonus: 0.35, owned: false },
+        { id: 'hunter', name: "Hunter Gloves", price: 200, bonus: 0.50, owned: false },
+        { id: 'elite', name: "Elite Gloves", price: 400, bonus: 0.70, owned: false },
+        { id: 'cyber', name: "Cyber Gloves", price: 600, bonus: 0.90, owned: false }
     ];
 
     let currentGun = guns[0];
@@ -221,7 +335,8 @@
     function unlockAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (bgMusic.paused && !isPaused) bgMusic.play(); }
     function updateAmmoDisplay() { ammoCountElement.innerText = `${currentGun.currentAmmo}/${currentGun.maxAmmo}`; }
     function changeWeather() { const types = ["sunny", "rainy", "snowy"]; targetWeather = types[Math.floor(Math.random() * types.length)]; }
-    setInterval(changeWeather, 20000);
+    
+    setInterval(changeWeather, 60000);
 
     function initEnv() {
         mountains = []; trees = []; rocks = []; flowers = []; clouds = []; stars = [];
@@ -231,6 +346,29 @@
         for(let i=0; i<6; i++) rocks.push({ x: Math.random() * canvas.width, y: canvas.height - 80, w: 40 + Math.random()*40 });
         for(let i=0; i<40; i++) flowers.push({ x: Math.random() * canvas.width, y: canvas.height - 20 - Math.random() * 80, fC: ['#ff4d4d', '#ffff66', '#ffffff'][Math.floor(Math.random()*3)] });
         for(let i=0; i<5; i++) clouds.push({ x: Math.random() * canvas.width, y: 50 + Math.random() * 150, s: 1 + Math.random() });
+    }
+
+    class ShootingStar {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * (canvas.height / 2);
+            this.length = 50 + Math.random() * 80;
+            this.speed = 10 + Math.random() * 15;
+            this.opacity = 1.0;
+        }
+        update() {
+            this.x += this.speed;
+            this.y += this.speed * 0.5;
+            this.opacity -= 0.02;
+        }
+        draw() {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x - this.length, this.y - (this.length * 0.5));
+            ctx.stroke();
+        }
     }
 
     class WeatherEffect {
@@ -270,7 +408,13 @@
         update() { 
             if(!isPaused) {
                 this.x += this.speed; 
-                if (this.x > canvas.width + 100) { score = Math.max(0, score - 1); scoreElement.innerText = score; return true; }
+                if (this.x > canvas.width + 100) { 
+                    score = Math.max(0, score - 1); 
+                    scoreElement.innerText = score; 
+                    comboCount = 0;
+                    comboUI.style.display = 'none';
+                    return true; 
+                }
             }
             return false;
         }
@@ -285,13 +429,32 @@
     function animate() {
         ctx.save();
         if (shake > 0) { ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake *= 0.85; if(shake < 0.1) shake = 0; }
-        if(!isPaused) gameTime += 0.003; 
+        if(!isPaused) {
+            gameTime += 0.001; 
+            if(comboCount > 0 && Date.now() - lastHitTime > comboLimit) {
+                comboCount = 0;
+                comboUI.style.display = 'none';
+            }
+        }
         let cycle = (Math.sin(gameTime) + 1) / 2;
         let r = 10 + 69 * cycle; let g = 10 + 150 * cycle; let b = 42 + 213 * cycle;
         if(targetWeather !== "sunny") { r *= 0.7; g *= 0.7; b *= 0.8; }
         ctx.fillStyle = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        if (cycle < 0.6) { ctx.fillStyle = `rgba(255, 255, 255, ${1 - cycle * 1.5})`; stars.forEach(s => ctx.fillRect(s.x, s.y, s.s, s.s)); }
+        
+        if (cycle < 0.6) { 
+            ctx.fillStyle = `rgba(255, 255, 255, ${1 - cycle * 1.5})`; 
+            stars.forEach(s => ctx.fillRect(s.x, s.y, s.s, s.s)); 
+            
+            // Shooting Stars Logic
+            if (!isPaused && Math.random() < 0.005) shootingStars.push(new ShootingStar());
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                shootingStars[i].update();
+                shootingStars[i].draw();
+                if (shootingStars[i].opacity <= 0) shootingStars.splice(i, 1);
+            }
+        }
+
         let sunY = (canvas.height/1.5) + Math.sin(gameTime + Math.PI) * (canvas.height/1.5);
         let sunX = (gameTime * 40) % (canvas.width + 400) - 200;
         if(targetWeather === "sunny") { ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(sunX, sunY, 45, 0, Math.PI*2); ctx.fill(); }
@@ -348,11 +511,26 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
         currentGun.currentAmmo--; updateAmmoDisplay(); gunRecoil = -35; muzzleFlash = 4; shake = currentGun.shake;
+        
         for(let i = birds.length - 1; i >= 0; i--) {
             let b = birds[i];
-            if(Math.hypot(mouse.x - b.x, mouse.y - b.y) < 70) { 
-                for(let j=0; j<10; j++) particles.push(new Particle(b.x+15, b.y+7)); 
-                birds.splice(i, 1); score++; hitCounter++; scoreElement.innerText = score; 
+            let birdCenterX = b.x + 15 * b.size; 
+            let birdCenterY = b.y + 7 * b.size;
+            let dist = Math.hypot(mouse.x - birdCenterX, mouse.y - birdCenterY);
+            
+            if(dist < 70 * b.size) { 
+                for(let j=0; j<15; j++) particles.push(new Particle(birdCenterX, birdCenterY)); 
+                birds.splice(i, 1); 
+                
+                // COMBO
+                comboCount++;
+                lastHitTime = Date.now();
+                comboCountElement.innerText = comboCount;
+                if(comboCount >= 2) comboUI.style.display = 'block';
+
+                score++; 
+                hitCounter++; 
+                scoreElement.innerText = score; 
                 if(hitCounter % 10 === 0) { document.getElementById('special-text').classList.add('show-text'); setTimeout(()=>document.getElementById('special-text').classList.remove('show-text'), 1200); }
                 break;
             } 
@@ -363,15 +541,66 @@
     window.addEventListener('mouseup', () => { isFiring = false; clearInterval(fireInterval); });
 
     function startReload() {
+        if(isReloading) return;
         isFiring = false; clearInterval(fireInterval); isReloading = true;
+        reloadContainer.style.display = 'block';
+        reloadBarFill.style.width = '0%';
         let bonusFactor = currentGlove ? (1 - currentGlove.bonus) : 1;
         let actualReloadTime = currentGun.reloadTime * bonusFactor;
         let rInterval = setInterval(() => { if (gunRecoil < 140) gunRecoil += 15; }, 16); 
-        setTimeout(() => { clearInterval(rInterval); currentGun.currentAmmo = currentGun.maxAmmo; updateAmmoDisplay(); isReloading = false; gunRecoil = 0; }, actualReloadTime); 
+        let startTime = Date.now();
+        let barInterval = setInterval(() => {
+            let elapsedTime = Date.now() - startTime;
+            let progress = (elapsedTime / actualReloadTime) * 100;
+            if (progress > 100) progress = 100;
+            reloadBarFill.style.width = progress + '%';
+            if (progress >= 100) clearInterval(barInterval);
+        }, 20);
+        setTimeout(() => { 
+            clearInterval(rInterval); 
+            currentGun.currentAmmo = currentGun.maxAmmo; 
+            updateAmmoDisplay(); 
+            isReloading = false; 
+            gunRecoil = 0; 
+            reloadContainer.style.display = 'none';
+        }, actualReloadTime); 
     }
 
-    function togglePause() { isPaused = !isPaused; document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none'; if(isPaused) { bgMusic.pause(); isFiring = false; clearInterval(fireInterval); } else { bgMusic.play(); } }
-    function handleShopToggle() { isShopOpen = !isShopOpen; isPaused = isShopOpen; document.getElementById('shop-menu').style.display = isShopOpen ? 'block' : 'none'; updateShopUI(); if(isShopOpen) { bgMusic.pause(); isFiring = false; clearInterval(fireInterval); } else { bgMusic.play(); } }
+    function togglePause() { 
+        isPaused = !isPaused; 
+        document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none'; 
+        if(isPaused) { 
+            bgMusic.pause(); 
+            isFiring = false; 
+            clearInterval(fireInterval); 
+            pauseStartTime = Date.now();
+        } else { 
+            bgMusic.play(); 
+            if(comboCount > 0) {
+                let pauseDuration = Date.now() - pauseStartTime;
+                lastHitTime += pauseDuration;
+            }
+        } 
+    }
+    
+    function handleShopToggle() { 
+        isShopOpen = !isShopOpen; 
+        isPaused = isShopOpen; 
+        document.getElementById('shop-menu').style.display = isShopOpen ? 'block' : 'none'; 
+        updateShopUI(); 
+        if(isShopOpen) { 
+            bgMusic.pause(); 
+            isFiring = false; 
+            clearInterval(fireInterval); 
+            pauseStartTime = Date.now();
+        } else { 
+            bgMusic.play(); 
+            if(comboCount > 0) {
+                let pauseDuration = Date.now() - pauseStartTime;
+                lastHitTime += pauseDuration;
+            }
+        } 
+    }
     
     function updateShopUI() { 
         const gunContainer = document.getElementById('guns-container'); gunContainer.innerHTML = ''; 
@@ -393,6 +622,8 @@
 
     function startGame() { document.getElementById('start-overlay').style.display = 'none'; isPaused = false; unlockAudio(); bgMusic.play().catch(e => console.log("Audio play deferred.")); initEnv(); animate(); }
     setInterval(() => { if(!isPaused && birds.length < 10) birds.push(new Bird()); }, 1200);
+    
+    setLanguage('tr');
 </script>
 </body>
-    </html>
+</html> 
